@@ -2,6 +2,7 @@ package com.pal.mapper.impl;
 
 import com.pal.entity.User;
 import com.pal.mapper.UserMapper;
+import com.pal.untils.ConnectionUtils;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -29,14 +30,16 @@ public class UserMapperImpl implements UserMapper{
         }
     }
 
+    /**
+     * 构建sqlSessionFactory时可以设置连接，以此控制事务
+     */
     SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
-    SqlSession sqlSession = sqlSessionFactory.openSession();
+    SqlSession sqlSession = sqlSessionFactory.openSession(ConnectionUtils.getInstance().getCurrentThreadConn());
     UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 
     @Override
     public List<User> queryAll() {
         List<User> users = mapper.queryAll();
-        sqlSession.close();
         return users;
     }
 
@@ -48,7 +51,6 @@ public class UserMapperImpl implements UserMapper{
     @Override
     public int update(String username, int balance) {
         int update = mapper.update(username, balance);
-        sqlSession.commit();
         return update;
     }
 

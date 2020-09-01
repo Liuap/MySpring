@@ -5,10 +5,13 @@ import com.pal.factory.BeanFactory;
 import com.pal.mapper.UserMapper;
 import com.pal.mapper.impl.UserMapperImpl;
 import com.pal.service.UserService;
+import com.pal.untils.ConnectionUtils;
+import com.pal.untils.TransactionManager;
 import org.apache.ibatis.annotations.Param;
 
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -49,18 +52,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void transfer(String fromUser, String toUser, int money) {
-        int fromUserBalance = userMapper.getBalanceByUser(fromUser);
-        int toUserBalance = userMapper.getBalanceByUser(toUser);
+    public void transfer(String fromUser, String toUser, int money) throws SQLException {
 
-        //这样写会有事务问题
-        userMapper.update(fromUser,fromUserBalance-money);
-        userMapper.update(toUser,toUserBalance+money);
+        try {
+            int fromUserBalance = userMapper.getBalanceByUser(fromUser);
+            int toUserBalance = userMapper.getBalanceByUser(toUser);
+            TransactionManager.getInstance().beginTransaction();
 
-        list = userMapper.queryAll();
-        System.out.println("交易完状态：");
-        for (User user : list) {
-            System.out.println(user);
+            //这样写会有事务问题
+            userMapper.update(fromUser,fromUserBalance-money);
+//            int i = 1/0;
+            userMapper.update(toUser,toUserBalance+money);
+
+
+            TransactionManager.getInstance().commit();
+            list = userMapper.queryAll();
+            System.out.println("交易完状态：");
+            for (User user : list) {
+                System.out.println(user);
+            }
+
+        } catch (Exception throwables) {
+            TransactionManager.getInstance().rollback();
+            throw throwables;
         }
+
+
     }
 }
