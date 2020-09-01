@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--跟标签beans，里面配置一个又一个的bean子标签，每一个bean子标签都代表一个类的配置-->
+<beans>
+    <!--id标识对象，class是类的全限定类名-->
+    <bean id="UserMapper" class="com.pal.mapper.impl.UserMapperImpl"/>
+    <bean id="UserService" class="com.pal.service.impl.UserServiceImpl">
+        <!-- name用来定位set方法，ref为真正的引用，即set方法的参数 -->
+        <property name="UserMapper" ref="UserMapper"/>
+    </bean>
+</beans>
