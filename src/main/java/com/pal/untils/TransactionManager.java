@@ -9,24 +9,29 @@ import java.sql.SQLException;
  */
 public class TransactionManager {
 
-    private TransactionManager(){
+    private ConnectionUtils connectionUtils;
 
-        }
-        private static TransactionManager transactionManager = new TransactionManager();
-
-        public static TransactionManager getInstance(){
-            return transactionManager;
-        }
+    public void setConnectionUtils(ConnectionUtils connectionUtils) {
+        this.connectionUtils = connectionUtils;
+    }
+//    private TransactionManager(){
+//
+//        }
+//        private static TransactionManager transactionManager = new TransactionManager();
+//
+//        public static TransactionManager getInstance(){
+//            return transactionManager;
+//        }
 
     public void beginTransaction() throws SQLException {
-        ConnectionUtils.getInstance().getCurrentThreadConn().setAutoCommit(false);
+        connectionUtils.getCurrentThreadConn().setAutoCommit(false);
     }
 
     public void commit() throws SQLException {
-        ConnectionUtils.getInstance().getCurrentThreadConn().commit();
+        connectionUtils.getCurrentThreadConn().commit();
     }
 
     public void rollback() throws SQLException {
-        ConnectionUtils.getInstance().getCurrentThreadConn().rollback();
+        connectionUtils.getCurrentThreadConn().rollback();
     }
 }

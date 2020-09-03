@@ -20,25 +20,43 @@ import java.util.List;
  * @date 2020/9/1 11:21 上午
  */
 public class UserMapperImpl implements UserMapper{
-    InputStream resourceAsStream;
 
-    {
+    private ConnectionUtils connectionUtils;
+
+    public void setConnectionUtils(ConnectionUtils connectionUtils) {
+        this.connectionUtils = connectionUtils;
+    }
+
+    //反射获取对象时，会实例化类中对象，由于UserMapperImpl是bean级别引用，所以此时ConnectionUtils还没注入，直接用就报错
+//    InputStream resourceAsStream;
+//
+//    {
+//        try {
+//            resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    /**
+//     * 构建sqlSessionFactory时可以设置连接，以此控制事务
+//     */
+//    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+//    SqlSession sqlSession = sqlSessionFactory.openSession(connectionUtils.getCurrentThreadConn());
+//    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+    @Override
+    public List<User> queryAll() {
+        InputStream resourceAsStream = null;
         try {
             resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession(connectionUtils.getCurrentThreadConn());
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 
-    /**
-     * 构建sqlSessionFactory时可以设置连接，以此控制事务
-     */
-    SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
-    SqlSession sqlSession = sqlSessionFactory.openSession(ConnectionUtils.getInstance().getCurrentThreadConn());
-    UserMapper mapper = sqlSession.getMapper(UserMapper.class);
-
-    @Override
-    public List<User> queryAll() {
         List<User> users = mapper.queryAll();
         return users;
     }
@@ -50,12 +68,30 @@ public class UserMapperImpl implements UserMapper{
 
     @Override
     public int update(String username, int balance) {
+        InputStream resourceAsStream = null;
+        try {
+            resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession(connectionUtils.getCurrentThreadConn());
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         int update = mapper.update(username, balance);
         return update;
     }
 
     @Override
     public int getBalanceByUser(String username) {
+        InputStream resourceAsStream = null;
+        try {
+            resourceAsStream = Resources.getResourceAsStream("sqlMapConfig.xml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(resourceAsStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession(connectionUtils.getCurrentThreadConn());
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
 
         return mapper.getBalanceByUser(username);
     }

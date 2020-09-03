@@ -29,7 +29,10 @@ public class BeanFactory {
         // 完成第一步
         InputStream resourceAsStream = BeanFactory.class.getClassLoader().getResourceAsStream("beans.xml");
         SAXReader saxReader = new SAXReader();
-        // 获取数据，实例化对象
+
+        /**
+         * 总体上，先在容器(Map)里放入bean级别的反射对象，然后根据property获取ref所指的对象(map.get(ref))注入(set方法)到父级bean
+         */
         try {
             Document document = saxReader.read(resourceAsStream);
             Element rootElement = document.getRootElement();
@@ -44,6 +47,7 @@ public class BeanFactory {
                 Class<?> aClass1 = Class.forName(aClass);
                 Object instance = aClass1.newInstance();
 
+                // 此时id为小写首字母，为了和set的对象对应，instance是根据class反射得到的对象
                 map.put(id,instance);
             }
 
@@ -62,7 +66,9 @@ public class BeanFactory {
                 //反射得到方法数组,然后找到对应name的父对象的set方法，反射调用,参数为对象，从前边够早的对象map获取
                 Method[] methods = parentObject.getClass().getMethods();
                 for (Method method : methods) {
+                    //找到set方法
                     if (method.getName().equalsIgnoreCase("set"+name)){
+                        //这时，反射调用父级bean的set方法，然后从已有bean级别的map中找ref的对象，然后注入父级bean
                         method.invoke(parentObject,map.get(ref));
                     }
                 }
@@ -77,7 +83,7 @@ public class BeanFactory {
     }
 
     /**
-     * 根据id获取对象:DI
+     * 根据id获取对象:注意id与beans.xml对应，大小写敏感
      * @param id
      * @return
      */

@@ -2,9 +2,24 @@
 <!--跟标签beans，里面配置一个又一个的bean子标签，每一个bean子标签都代表一个类的配置-->
 <beans>
     <!--id标识对象，class是类的全限定类名-->
-    <bean id="UserMapper" class="com.pal.mapper.impl.UserMapperImpl"/>
-    <bean id="UserService" class="com.pal.service.impl.UserServiceImpl">
+    <!--  id和ref必须小写，因为，最开始将id作为map的id来封装容器，然后根据property在对依赖进行注入，此时有map.get(ref)来对注入对象进行检索，大写找不到，就没法更新注入  -->
+    <bean id="connectionUtils" class="com.pal.untils.ConnectionUtils"/>
+
+    <bean id="userMapper" class="com.pal.mapper.impl.UserMapperImpl">
+        <property name="ConnectionUtils" ref="connectionUtils"/>
+    </bean>
+
+    <bean id="userService" class="com.pal.service.impl.UserServiceImpl">
         <!-- name用来定位set方法，ref为真正的引用，即set方法的参数 -->
-        <property name="UserMapper" ref="UserMapper"/>
+        <property name="UserMapper" ref="userMapper"/>
+    </bean>
+
+
+    <bean id="transactionManager" class="com.pal.untils.TransactionManager">
+        <property name="ConnectionUtils" ref="connectionUtils"/>
+    </bean>
+
+    <bean id="proxyFactory" class="com.pal.factory.ProxyFactory">
+        <property name="TransactionManager" ref="transactionManager"/>
     </bean>
 </beans>

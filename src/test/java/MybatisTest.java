@@ -1,5 +1,6 @@
 import com.pal.entity.User;
 import com.pal.factory.BeanFactory;
+import com.pal.factory.ProxyFactory;
 import com.pal.mapper.UserMapper;
 import com.pal.service.UserService;
 import com.pal.service.impl.UserServiceImpl;
@@ -41,9 +42,14 @@ public class MybatisTest {
         // UserService service = new UserServiceImpl();
 
         // 用只声明对象时，就要在此get Service对象，此时会根据xml注入mapper给service，相当于在更高层注入service
-        UserService service = (UserService) BeanFactory.getBean("UserService");
+        //UserService service = (UserService) BeanFactory.getBean("UserService");
+
+        // 动态代理增强后的调用
+        ProxyFactory proxyFactory = (ProxyFactory) BeanFactory.getBean("proxyFactory");
+        UserService service = (UserService) proxyFactory.getJdkProxy(BeanFactory.getBean("userService"));
         try {
             service.transfer("Tim","Bob",100);
+            //service.queryAll();
         } catch (Exception e) {
             e.printStackTrace();
         }
